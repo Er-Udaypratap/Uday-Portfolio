@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uday Pratap — Full-Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D1117;
+    --bg-alt:#0A0D12;
+    --surface:#141A21;
+    --surface-2:#181F27;
+    --border:#232B34;
+    --text:#E6EDF3;
+    --text-dim:#8B949E;
+    --text-dimmer:#5B6570;
+    --accent:#E3B341;
+    --accent-soft:rgba(227,179,65,0.12);
+    --blue:#58A6FF;
+    --green:#7EE787;
+    --red:#FF7B72;
+    --mono:'JetBrains Mono', monospace;
+    --sans:'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--accent-soft); color:var(--accent);}
+
+  a{color:var(--blue); text-decoration:none;}
+
+  /* ---------- Title bar / nav ---------- */
+  .titlebar{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(13,17,23,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center;
+    height:52px;
+    padding:0 16px;
+    gap:16px;
+  }
+  .dots{display:flex; gap:6px; flex-shrink:0;}
+  .dot{width:10px; height:10px; border-radius:50%;}
+  .dot.r{background:#FF5F56;} .dot.y{background:#FFBD2E;} .dot.g{background:#27C93F;}
+  .tabs{
+    display:flex; gap:2px; overflow-x:auto; scrollbar-width:none;
+    font-family:var(--mono); font-size:13px;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    padding:8px 14px; color:var(--text-dim); white-space:nowrap; cursor:pointer;
+    border-bottom:2px solid transparent; transition:.2s;
+  }
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--accent); border-bottom-color:var(--accent);}
+
+  /* ---------- Hero / terminal ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:100px 20px 60px;
+    max-width:900px; margin:0 auto;
+  }
+  .prompt-line{
+    font-family:var(--mono); font-size:14px; color:var(--text-dim); margin-bottom:6px;
+  }
+  .prompt-line .sym{color:var(--green);}
+  .prompt-line .path{color:var(--blue);}
+  #typed{color:var(--text);}
+  .cursor{display:inline-block; width:8px; height:18px; background:var(--accent); vertical-align:middle; animation:blink 1s step-end infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  .hero h1{
+    font-family:var(--mono);
+    font-size:clamp(32px,7vw,64px);
+    font-weight:700;
+    margin:18px 0 8px;
+    letter-spacing:-1px;
+  }
+  .hero h1 .accent{color:var(--accent);}
+  .hero .role{
+    font-size:clamp(16px,3vw,20px);
+    color:var(--text-dim);
+    margin-bottom:22px;
+    font-weight:500;
+  }
+  .hero .role .k{color:var(--blue); font-family:var(--mono);}
+  .hero p.desc{
+    max-width:560px; color:var(--text-dim); font-size:15px; margin-bottom:32px;
+  }
+  .cta-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--mono); font-size:14px; font-weight:500;
+    padding:12px 22px; border-radius:6px; cursor:pointer; border:1px solid var(--border);
+    transition:.2s; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:var(--accent); color:#1a1300; border-color:var(--accent);}
+  .btn-primary:hover{background:#f0c25c;}
+  .btn-ghost{background:transparent; color:var(--text); }
+  .btn-ghost:hover{border-color:var(--text-dim); background:var(--surface);}
+  .hero{position:relative;}
+
+  /* ---------- Panes ---------- */
+  .pane{
+    max-width:900px; margin:0 auto; padding:80px 20px;
+    border-top:1px solid var(--border);
+  }
+  .pane-header{
+    font-family:var(--mono); font-size:13px; color:var(--text-dimmer);
+    margin-bottom:36px; display:flex; align-items:center; gap:10px;
+  }
+  .pane-header .num{color:var(--accent);}
+  .pane-header::after{content:''; flex:1; height:1px; background:var(--border);}
+
+  .code-block{font-family:var(--mono); font-size:14px;}
+  .line{display:flex; padding:1px 0;}
+  .code-block{counter-reset:line;}
+  .line{counter-increment:line;}
+  .ln{
+    width:28px; flex-shrink:0; color:var(--text-dimmer); user-select:none; text-align:right; margin-right:18px;
+  }
+  .ln::before{content:counter(line);}
+  .content{color:var(--text-dim);}
+  .content .kw{color:var(--blue);}
+  .content .str{color:var(--green);}
+  .content .com{color:var(--text-dimmer); font-style:italic;}
+  .content .prop{color:var(--accent);}
+
+  .prose{
+    font-family:var(--sans); font-size:15.5px; color:var(--text-dim); max-width:640px; margin-top:22px;
+  }
+  .prose strong{color:var(--text); font-weight:600;}
+  .prose p + p{margin-top:14px;}
+
+  .badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:20px;}
+  .badge{
+    font-family:var(--mono); font-size:12px; color:var(--accent);
+    background:var(--accent-soft); border:1px solid rgba(227,179,65,0.3);
+    padding:4px 10px; border-radius:4px;
+  }
+
+  /* ---------- Projects ---------- */
+  .projects-grid{display:flex; flex-direction:column; gap:18px; margin-top:10px;}
+  .project-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:24px; transition:.2s;
+  }
+  .project-card:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .project-top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+  .project-name{font-family:var(--mono); font-size:17px; font-weight:600; color:var(--text);}
+  .project-tag{font-family:var(--mono); font-size:11px; color:var(--bg); background:var(--green); padding:3px 8px; border-radius:4px; font-weight:600;}
+  .project-tag.internship{background:var(--accent);}
+  .project-tag.client{background:var(--blue);}
+  .project-desc{color:var(--text-dim); font-size:14.5px; margin:10px 0 14px;}
+  .stack-row{display:flex; flex-wrap:wrap; gap:6px;}
+  .stack-pill{
+    font-family:var(--mono); font-size:11.5px; color:var(--text-dim);
+    border:1px solid var(--border); padding:3px 9px; border-radius:20px;
+  }
+
+  /* ---------- Skills ---------- */
+  .skills-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:24px; margin-top:24px;
+  }
+  .skill-group{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px;}
+  .skill-group h4{font-family:var(--mono); font-size:12px; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;}
+  .skill-group ul{list-style:none;}
+  .skill-group li{
+    font-family:var(--mono); font-size:13.5px; color:var(--text-dim);
+    padding:6px 0; border-bottom:1px dashed var(--border); display:flex; align-items:center; gap:8px;
+  }
+  .skill-group li:last-child{border-bottom:none;}
+  .skill-group li::before{content:'▸'; color:var(--blue); font-size:11px;}
+
+  /* ---------- Contact ---------- */
+  .contact-grid{display:flex; flex-direction:column; gap:12px; margin-top:24px; max-width:480px;}
+  .contact-link{
+    display:flex; align-items:center; gap:16px;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    padding:16px 18px; font-family:var(--mono); font-size:14px; color:var(--text);
+    transition:.2s;
+  }
+  .contact-link:hover{border-color:var(--blue); background:var(--surface-2); transform:translateX(4px);}
+  .contact-icon{
+    width:38px; height:38px; flex-shrink:0; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--accent-soft);
+  }
+  .contact-icon svg{width:20px; height:20px; fill:var(--accent);}
+  .contact-text{flex:1;}
+  .contact-link .label{color:var(--text-dim); font-size:12px;}
+  .contact-link .arrow{color:var(--blue); flex-shrink:0;}
+  .edit-note{
+    margin-top:26px; font-family:var(--mono); font-size:12px; color:var(--text-dimmer);
+    border-left:2px solid var(--accent); padding-left:12px;
+  }
+
+  footer{
+    text-align:center; padding:40px 20px 60px; font-family:var(--mono); font-size:12px; color:var(--text-dimmer);
+  }
+
+  @media (max-width:640px){
+    .pane{padding:60px 18px;}
+    .ln{width:20px; margin-right:10px; font-size:12px;}
+    .content{font-size:13px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+  <div class="tabs">
+    <div class="tab active" data-target="about">about</div>
+    <div class="tab" data-target="skills">skills</div>
+    <div class="tab" data-target="projects">projects</div>
+    <div class="tab" data-target="internship">internship</div>
+    <div class="tab" data-target="certificates">certificates</div>
+    <div class="tab" data-target="contact">contact</div>
+  </div>
+</div>
+
+<section class="hero" id="hero">
+  <div class="prompt-line"><span class="sym">➜</span> <span class="path">~/uday</span> whoami</div>
+  <h1>Uday <span class="accent">Pratap</span></h1>
+  <div class="role"><span class="k"></span><span style="color:var(--green);">"Full-Stack Developer"</span></div>
+  <p class="desc">B.Voc Software Development student at SRIMT, Lucknow — building full-stack AI apps, e-commerce platforms and client websites, and shipping them end to end.</p>
+  <div class="cta-row">
+    <a href="#projects" class="btn btn-primary">View Projects →</a>
+    <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+    <a href="#" class="btn btn-ghost" id="resumeBtn">Resume ↓</a>
+  </div>
+</section>
+
+<section class="pane" id="about">
+  <div class="pane-header"><span class="num">01</span> about</div>
+  <div class="code-block">
+    <div class="line"><span class="ln"></span><span class="content"><span class="com">// who's building this</span></span></div>
+    <div class="line"><span class="ln"></span><span class="content"><span class="kw">const</span> <span class="prop">developer</span> = {</span></div>
+    <div class="line"><span class="ln"></span><span class="content">&nbsp;&nbsp;name: <span class="str">"Uday Pratap"</span>,</span></div>
+    <div class="line"><span class="ln"></span><span class="content">&nbsp;&nbsp;degree: <span class="str">"B.Voc — Software Development"</span>,</span></div>
+    <div class="line"><span class="ln"></span><span class="content">&nbsp;&nbsp;college: <span class="str">"SR Institute of Management &amp; Technology, Lucknow"</span>,</span></div>
+    <div class="line"><span class="ln"></span><span class="content">&nbsp;&nbsp;focus: <span class="str">"Full-Stack Development"</span>,</span></div>
+    <div class="line"><span class="ln"></span><span class="content">&nbsp;&nbsp;interests: [<span class="str">"AI apps"</span>, <span class="str">"e-commerce"</span>, <span class="str">"web platforms"</span>]</span></div>
+    <div class="line"><span class="ln"></span><span class="content">};</span></div>
+  </div>
+  <div class="prose">
+    <p>I build complete full-stack products — frontend, backend, and database — and take them all the way to deployment. My workflow leans on cloud-native tools: GitHub for version control, dashboard-based deploys on Render, Vercel and Netlify, and managed databases like Supabase and Firebase.</p>
+    <p>Alongside my internships, I take on freelance web projects for local businesses, handling everything from design to launch.</p>
+  </div>
+</section>
+
+<section class="pane" id="skills">
+  <div class="pane-header"><span class="num">02</span> skills</div>
+  <div class="skills-grid">
+    <div class="skill-group">
+      <h4>Languages</h4>
+      <ul><li>Java</li><li>Python</li><li>C</li><li>JavaScript</li><li>PHP</li></ul>
+    </div>
+    <div class="skill-group">
+      <h4>Frontend</h4>
+      <ul><li>HTML5</li><li>CSS3</li><li>Bootstrap</li><li>React</li></ul>
+    </div>
+    <div class="skill-group">
+      <h4>Backend</h4>
+      <ul><li>FastAPI</li><li>Django</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="pane" id="projects">
+  <div class="pane-header"><span class="num">03</span> projects</div>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">AI Study Buddy</div>
+        <div class="project-tag">AI</div>
+      </div>
+      <div class="project-desc">A full-stack AI chatbot for Indian students, with a space-themed UI, voice input, photo upload with multimodal Gemini, persistent chat history, and a custom cross-conversation memory system.</div>
+      <div class="stack-row">
+        <span class="stack-pill">FastAPI</span><span class="stack-pill">Gemini API</span><span class="stack-pill">React + Vite</span><span class="stack-pill">Supabase</span><span class="stack-pill">Flutter</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">Mahoday</div>
+        <div class="project-tag">AI</div>
+      </div>
+      <div class="project-desc">An AI assistant web app built for SRIMT — custom email + DOB authentication, a slide-in chat history panel, an embedded college knowledge base, and full PWA installability.</div>
+      <div class="stack-row">
+        <span class="stack-pill">React + Vite</span><span class="stack-pill">FastAPI</span><span class="stack-pill">Gemini API</span><span class="stack-pill">Supabase</span><span class="stack-pill">PWA</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">E-Commerce Store</div>
+        <div class="project-tag internship">CodeAlpha Internship</div>
+      </div>
+      <div class="project-desc">A full e-commerce platform built for CodeAlpha — vanilla HTML/CSS/JS frontend, Django backend, and Firestore as the database via the firebase-admin SDK.</div>
+      <div class="stack-row">
+        <span class="stack-pill">HTML/CSS/JS</span><span class="stack-pill">Django</span><span class="stack-pill">Firestore</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">techbook4u</div>
+        <div class="project-tag">Platform</div>
+      </div>
+      <div class="project-desc">A 60-page static educational platform for Indian students — placement prep, MCQ quizzes, interview guides, coding challenges, and a referral/earnings system backed by atomic RPC functions.</div>
+      <div class="stack-row">
+        <span class="stack-pill">HTML/CSS/JS</span><span class="stack-pill">Supabase</span><span class="stack-pill">RLS</span><span class="stack-pill">Netlify</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">Uttam Kala</div>
+        <div class="project-tag client">Client Website</div>
+      </div>
+      <div class="project-desc">A website for Uttam Kala, a photo framing business in Gurugram — with a gallery page, an animated promo reel, Google Maps embed, and WhatsApp/call integration.</div>
+      <div class="stack-row">
+        <span class="stack-pill">HTML/CSS/JS</span><span class="stack-pill">Google Maps</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="pane" id="internship">
+  <div class="pane-header"><span class="num">04</span> internship</div>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">CodeAlpha</div>
+        <div class="project-tag internship">Current</div>
+      </div>
+      <div class="project-desc">Building a full e-commerce store as part of the internship — HTML/CSS/JS frontend, Django backend, and Firebase/Firestore for the database.</div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">InAmigos Foundation</div>
+        <div class="project-tag">Previous</div>
+      </div>
+      <div class="project-desc">Completed an internship contributing to the foundation's technical initiatives.</div>
+    </div>
+
+  </div>
+</section>
+
+<section class="pane" id="certificates">
+  <div class="pane-header"><span class="num">05</span> certificates</div>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">Certificate Name</div>
+        <div class="project-tag">Issuer</div>
+      </div>
+      <div class="project-desc">Add a short line about what this certificate covers and when you earned it.</div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-top">
+        <div class="project-name">Certificate Name</div>
+        <div class="project-tag">Issuer</div>
+      </div>
+      <div class="project-desc">Add a short line about what this certificate covers and when you earned it.</div>
+    </div>
+
+  </div>
+  <div class="edit-note">// TODO: replace these placeholder cards with your actual certificates — name, issuing platform, and a one-line description each.</div>
+</section>
+
+<section class="pane" id="contact">
+  <div class="pane-header"><span class="num">06</span> contact.sh</div>
+  <div class="contact-grid">
+    <a class="contact-link" href="mailto:u.p.rajvanshi112@gmail.com">
+      <span class="contact-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg></span>
+      <span class="contact-text"><span class="label">EMAIL</span><br>u.p.rajvanshi112@gmail.com</span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="contact-link" href="https://www.linkedin.com/in/uday-pratap-853458289" target="_blank" rel="noopener">
+      <span class="contact-icon"><svg viewBox="0 0 24 24"><path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/></svg></span>
+      <span class="contact-text"><span class="label">LINKEDIN</span><br>linkedin.com/in/uday-pratap-853458289</span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="contact-link" href="https://wa.me/918447551460" target="_blank" rel="noopener">
+      <span class="contact-icon"><svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m0 1.67a8.2 8.2 0 0 1 5.83 2.42 8.19 8.19 0 0 1 2.41 5.83c0 4.55-3.7 8.24-8.25 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.38c0-4.55 3.7-8.25 8.25-8.25M8.53 6.85c-.17 0-.44.06-.67.31s-.88.86-.88 2.09.9 2.42 1.03 2.59 1.77 2.83 4.35 3.85c2.14.85 2.58.68 3.04.64.46-.05 1.49-.61 1.7-1.19s.21-1.09.15-1.19-.25-.17-.5-.29-1.5-.74-1.73-.82-.4-.13-.57.13-.65.82-.8 1-.29.19-.54.06a6.8 6.8 0 0 1-2-1.24 7.6 7.6 0 0 1-1.4-1.74c-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44s.17-.25.25-.42.04-.31-.02-.44-.57-1.37-.78-1.88c-.2-.5-.42-.42-.57-.43z"/></svg></span>
+      <span class="contact-text"><span class="label">WHATSAPP</span><br>+91 84475 51460</span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="contact-link" href="https://github.com/Er-Udaypratap" target="_blank" rel="noopener">
+      <span class="contact-icon"><svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.4 9.4 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85V21c0 .27.18.58.69.48A10 10 0 0 0 22 12 10 10 0 0 0 12 2z"/></svg></span>
+      <span class="contact-text"><span class="label">GITHUB</span><br>github.com/Er-Udaypratap</span>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<footer>built by Uday Pratap</footer>
+
+<script>
+  // Tab navigation + scroll spy
+  const tabs = document.querySelectorAll('.tab');
+  const sections = ['about','skills','projects','internship','certificates','contact'].map(id => document.getElementById(id));
+
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const target = document.getElementById(tab.dataset.target);
+      target.scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        tabs.forEach(t=>t.classList.remove('active'));
+        const active = document.querySelector(`.tab[data-target="${entry.target.id}"]`);
+        if(active) active.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-40% 0px -50% 0px'});
+
+  sections.forEach(s => observer.observe(s));
+
+  // Terminal typing effect
+  const phrases = ["Uday Pratap", "full-stack developer", "problem solver"];
+  const typedEl = document.createElement('span');
+  document.querySelector('.prompt-line').appendChild(typedEl);
+  typedEl.id = 'typed';
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  document.querySelector('.prompt-line').appendChild(cursor);
+
+  let pIndex=0, cIndex=0, deleting=false;
+  function typeLoop(){
+    const current = phrases[pIndex];
+    if(!deleting){
+      typedEl.textContent = current.slice(0, cIndex+1);
+      cIndex++;
+      if(cIndex === current.length){ deleting = true; setTimeout(typeLoop, 1200); return; }
+    } else {
+      typedEl.textContent = current.slice(0, cIndex-1);
+      cIndex--;
+      if(cIndex === 0){ deleting = false; pIndex = (pIndex+1)%phrases.length; }
+    }
+    setTimeout(typeLoop, deleting ? 40 : 80);
+  }
+  typeLoop();
+
+  // Resume button placeholder
+  document.getElementById('resumeBtn').addEventListener('click', (e)=>{
+    e.preventDefault();
+    alert('Add your resume file link here (e.g. a GitHub-hosted PDF or Google Drive link) to make this button work.');
+  });
+</script>
+
+</body>
+</html>
